@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
         try {
             long t1 = System.currentTimeMillis();
             List<UserExcelBean> users = new ArrayList<>();
-            for (int i = 1; i <= 100; i++) {
+            for (int i = 1; i <= 150; i++) {
                 UserExcelBean u = new UserExcelBean();
                 u.setName("大到飞起来" + i);
                 u.setMobile("手机号" + i);
