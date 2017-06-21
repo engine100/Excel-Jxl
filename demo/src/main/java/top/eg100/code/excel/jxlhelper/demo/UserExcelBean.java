@@ -1,4 +1,4 @@
-package com.engine100.excel.jxl.demo.bean;
+package top.eg100.code.excel.jxlhelper.demo;
 
 
 import jxl.format.Alignment;

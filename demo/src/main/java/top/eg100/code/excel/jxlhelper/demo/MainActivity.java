@@ -1,4 +1,4 @@
-package com.engine100.excel.jxl.demo;
+package top.eg100.code.excel.jxlhelper.demo;
 
 import android.app.Activity;
 import android.content.res.AssetManager;
@@ -7,9 +7,6 @@ import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import com.engine100.excel.jxl.R;
-import com.engine100.excel.jxl.demo.bean.UserExcelBean;
 
 import java.io.File;
 import java.io.FileOutputStream;

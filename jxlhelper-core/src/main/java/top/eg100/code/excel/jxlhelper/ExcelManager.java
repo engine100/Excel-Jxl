@@ -1,10 +1,11 @@
-package com.engine100.excel.jxl;
+/*
+ * Created by Engine100 on 2016-11-30 11:12:25.
+ *
+ *      https://github.com/engine100
+ *
+ */
+package top.eg100.code.excel.jxlhelper;
 
-
-import com.engine100.excel.jxl.annotations.ExcelContent;
-import com.engine100.excel.jxl.annotations.ExcelContentCellFormat;
-import com.engine100.excel.jxl.annotations.ExcelSheet;
-import com.engine100.excel.jxl.annotations.ExcelTitleCellFormat;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,16 +22,16 @@ import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.write.Label;
-import jxl.write.WritableCell;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
+import top.eg100.code.excel.jxlhelper.annotations.ExcelContent;
+import top.eg100.code.excel.jxlhelper.annotations.ExcelContentCellFormat;
+import top.eg100.code.excel.jxlhelper.annotations.ExcelSheet;
+import top.eg100.code.excel.jxlhelper.annotations.ExcelTitleCellFormat;
 
 /**
- * @author ZhuChengCheng
- * @description 转换类</br>
- * @github https://github.com/engine100
- * @time 2016年11月29日 - 下午11:14:11
+ * import from excel to class or export beans to excel
  */
 public class ExcelManager {
 
@@ -39,44 +40,36 @@ public class ExcelManager {
     private Map<Integer, String> titleCache = new HashMap<>();
 
     /**
-     * 写表格，只有一个表
-     *
-     * @param excelStream
-     * @param datas
-     * @return
-     * @throws Exception
-     * @description</br>
-     * @author ZhuChengCheng
-     * @github https://github.com/engine100
-     * @time 2016年11月29日 - 下午11:26:20
+     * write excel to only one sheet ,no format
      */
-    public boolean toExcel(OutputStream excelStream, List<?> datas) throws Exception {
-        if (datas == null || datas.size() == 0) {
+    public boolean toExcel(OutputStream excelStream, List<?> dataList) throws Exception {
+        if (dataList == null || dataList.size() == 0) {
             return false;
         }
-        Class<?> dataType = datas.get(0).getClass();
+        Class<?> dataType = dataList.get(0).getClass();
         String sheetName = getSheetName(dataType);
         List<ExcelClassKey> keys = getKeys(dataType);
 
-        // 创建工作簿
+        // create one book
         WritableWorkbook workbook = Workbook.createWorkbook(excelStream);
-        // 建立sheet表格
+        // create sheet
         WritableSheet sheet = workbook.createSheet(sheetName, 0);
 
-        // 添加标题
+        // add titles
         for (int x = 0; x < keys.size(); x++) {
-            sheet.addCell((WritableCell) new Label(x, 0, keys.get(x).getTitle()));
+            sheet.addCell(new Label(x, 0, keys.get(x).getTitle()));
         }
         fieldCache.clear();
-        // 添加数据
-        for (int y = 0; y < datas.size(); y++) {
+        // add data
+        for (int y = 0; y < dataList.size(); y++) {
             for (int x = 0; x < keys.size(); x++) {
                 String fieldName = keys.get(x).getFieldName();
 
                 Field field = getField(dataType, fieldName);
-                Object value = field.get(datas.get(y));
+                Object value = field.get(dataList.get(y));
                 String content = value != null ? value.toString() : "";
-                // 添加标题后，数据从第2行开始，所以是y+1
+
+                // below the title ,the data begin from y+1
                 sheet.addCell(new Label(x, y + 1, content));
             }
         }
@@ -87,61 +80,52 @@ public class ExcelManager {
     }
 
     /**
-     * 写表格，只有一个表，附带格式
-     *
-     * @param excelStream
-     * @param datas
-     * @return
-     * @throws Exception
-     * @description</br>
-     * @author ZhuChengCheng
-     * @github https://github.com/engine100
-     * @time 2016年11月30日 - 下午4:54:13
+     * write excel ,only one sheet ,with format
      */
-    public boolean toExcelWithFormat(OutputStream excelStream, List<?> datas) throws Exception {
-        if (datas == null || datas.size() == 0) {
+    public boolean toExcelWithFormat(OutputStream excelStream, List<?> dataList) throws Exception {
+        if (dataList == null || dataList.size() == 0) {
             return false;
         }
-        Class<?> dataType = datas.get(0).getClass();
+        Class<?> dataType = dataList.get(0).getClass();
         String sheetName = getSheetName(dataType);
         List<ExcelClassKey> keys = getKeys(dataType);
 
-        // 创建工作簿
+        // create one book
         WritableWorkbook workbook = Workbook.createWorkbook(excelStream);
-        // 建立sheet表格
+        // create sheet
         WritableSheet sheet = workbook.createSheet(sheetName, 0);
 
-        // 添加标题
-        // 获取标题格式
+        // add titles
+        // find title format
         Map<String, WritableCellFormat> titleFormats = getTitleFormat(dataType);
         for (int x = 0; x < keys.size(); x++) {
             String titleName = keys.get(x).getTitle();
             WritableCellFormat f = titleFormats.get(titleName);
             if (f != null) {
-                sheet.addCell((WritableCell) new Label(x, 0, titleName, f));
+                sheet.addCell(new Label(x, 0, titleName, f));
             } else {
-                sheet.addCell((WritableCell) new Label(x, 0, titleName));
+                sheet.addCell(new Label(x, 0, titleName));
             }
         }
         fieldCache.clear();
-        // 添加数据
-        for (int y = 0; y < datas.size(); y++) {
+        // add data
+        for (int y = 0; y < dataList.size(); y++) {
             for (int x = 0; x < keys.size(); x++) {
-                // 当前数据
-                Object data = datas.get(y);
+                // current data
+                Object data = dataList.get(y);
                 ExcelClassKey classKey = keys.get(x);
 
-                // 获得内容
+                // add content
                 String fieldName = classKey.getFieldName();
                 Field field = getField(dataType, fieldName);
                 Object value = field.get(data);
                 String content = value != null ? value.toString() : "";
 
-                // 获得格式
+                // add format
                 String title = classKey.getTitle();
                 WritableCellFormat contentFormat = getContentFormat(title, data);
 
-                // 添加标题后，数据从第2行开始，所以是y+1
+                // below the title ,the data begin from y+1
                 if (contentFormat != null) {
                     sheet.addCell(new Label(x, y + 1, content, contentFormat));
                 } else {
@@ -156,20 +140,13 @@ public class ExcelManager {
     }
 
     /**
-     * 获得所有的标题的格式，标题为key
-     *
-     * @param clazz
-     * @return
-     * @description</br>
-     * @author ZhuChengCheng
-     * @github https://github.com/engine100
-     * @time 2016年11月30日 - 下午4:22:09
+     * find all titles' WritableCellFormat
      */
     private Map<String, WritableCellFormat> getTitleFormat(Class<?> clazz) throws Exception {
         Map<String, WritableCellFormat> titleFormat = new HashMap<>();
         Method[] methods = clazz.getDeclaredMethods();
         for (int m = 0; m < methods.length; m++) {
-            // 获得有标题注解的方法
+
             Method method = methods[m];
             ExcelTitleCellFormat formatAnno = method.getAnnotation(ExcelTitleCellFormat.class);
             if (formatAnno == null) {
@@ -178,11 +155,11 @@ public class ExcelManager {
 
             method.setAccessible(true);
             WritableCellFormat format = null;
-            // 标题注解的必须是静态的方法
+
             try {
                 format = (WritableCellFormat) method.invoke(null);
             } catch (Exception e) {
-                throw new Exception("用ExcelTitleCellFormat 注解的标题格式方法必须是static");
+                throw new Exception("The method added ExcelTitleCellFormat must be the static method");
             }
 
             if (format != null) {
@@ -195,20 +172,13 @@ public class ExcelManager {
     }
 
     /**
-     * 获得所有的单元格的格式的方法，标题为key
-     *
-     * @param clazz
-     * @return
-     * @description</br>
-     * @author ZhuChengCheng
-     * @github https://github.com/engine100
-     * @time 2016年11月30日 - 下午4:22:09
+     * find all methods with ExcelContentCellFormat
      */
     private Map<String, Method> getContentFormatMethods(Class<?> clazz) {
         Map<String, Method> contentMethods = new HashMap<>();
         Method[] methods = clazz.getDeclaredMethods();
         for (int m = 0; m < methods.length; m++) {
-            // 获得有内容注解的方法
+
             Method method = methods[m];
             ExcelContentCellFormat formatAnno = method.getAnnotation(ExcelContentCellFormat.class);
             if (formatAnno == null) {
@@ -219,17 +189,6 @@ public class ExcelManager {
         return contentMethods;
     }
 
-    /**
-     * 获取数据对应的单元格格式
-     *
-     * @param title
-     * @param data
-     * @return
-     * @description</br>
-     * @author ZhuChengCheng
-     * @github https://github.com/engine100
-     * @time 2016年11月30日 - 下午4:39:44
-     */
     private <T> WritableCellFormat getContentFormat(String title, T data) {
         if (contentMethodsCache == null) {
             contentMethodsCache = getContentFormatMethods(data.getClass());
@@ -251,16 +210,6 @@ public class ExcelManager {
         return format;
     }
 
-    /**
-     * 获取所有的需要导入导出Excel的注解
-     *
-     * @param clazz
-     * @return
-     * @description</br>
-     * @author ZhuChengCheng
-     * @github https://github.com/engine100
-     * @time 2016年11月30日 - 上午9:59:02
-     */
     private List<ExcelClassKey> getKeys(Class<?> clazz) {
         Field[] fields = clazz.getDeclaredFields();
         List<ExcelClassKey> keys = new ArrayList<>();
@@ -289,22 +238,21 @@ public class ExcelManager {
 
     private String getSheetName(Class<?> clazz) {
         ExcelSheet sheet = clazz.getAnnotation(ExcelSheet.class);
+        if (sheet == null) {
+            throw new RuntimeException(clazz.getSimpleName() + " : lost sheet name!");
+        }
         String sheetName = sheet.sheetName();
         return sheetName;
     }
 
     /**
-     * @return
-     * @throws Exception
-     * @description 读表格，只有一个表的情况</br>
-     * @author ZhuChengCheng
-     * @github https://github.com/engine100
-     * @time 2016年11月29日 - 下午11:25:17
+     * read excel ,it is usual read by sheet name
+     * the sheet name must as same as the ExcelSheet annotation's sheetName on dataType
      */
     public <T> List<T> fromExcel(InputStream excelStream, Class<T> dataType) throws Exception {
         String sheetName = getSheetName(dataType);
 
-        // 获取键值对儿
+        // read map in excel
         List<Map<String, String>> title_content_values = getMapFromExcel(excelStream, sheetName);
         if (title_content_values == null || title_content_values.size() == 0) {
             return null;
@@ -312,7 +260,8 @@ public class ExcelManager {
 
         Map<String, String> value0 = title_content_values.get(0);
         List<ExcelClassKey> keys = getKeys(dataType);
-        // 判断在实体里的注解标题在excel表里是否存在，不存在就说明表格不能格式化为所需实体
+
+        //if there is no ExcelContent annotation in class ,return null
         boolean isExist = false;
         for (int kIndex = 0; kIndex < keys.size(); kIndex++) {
             String title = keys.get(kIndex).getTitle();
@@ -327,12 +276,13 @@ public class ExcelManager {
 
         List<T> datas = new ArrayList<>();
         fieldCache.clear();
-        // 键值对儿映射数据
+
+        // parse data from content
         for (int n = 0; n < title_content_values.size(); n++) {
             Map<String, String> title_content = title_content_values.get(n);
             T data = dataType.newInstance();
             for (int k = 0; k < keys.size(); k++) {
-                // 根据title和字段值映射
+
                 String title = keys.get(k).getTitle();
                 String fieldName = keys.get(k).getFieldName();
                 Field field = getField(dataType, fieldName);
@@ -344,43 +294,41 @@ public class ExcelManager {
     }
 
     /**
-     * 获取表的对应字段和值,<title,content>的形式
-     *
-     * @param excelStream
-     * @param sheetName
-     * @return
-     * @throws Exception
-     * @description</br>
-     * @author ZhuChengCheng
-     * @github https://github.com/engine100
-     * @time 2016年11月30日 - 上午9:38:05
+     * read excel by map
      */
     public List<Map<String, String>> getMapFromExcel(InputStream excelStream, String sheetName) throws Exception {
 
         Workbook workBook = Workbook.getWorkbook(excelStream);
         Sheet sheet = workBook.getSheet(sheetName);
 
-        int yNum = sheet.getRows();// 行数
-        // 只有标题或者什么都没有
+        // row num
+        int yNum = sheet.getRows();
+        // there is only tile or nothing
         if (yNum <= 1) {
             return null;
         }
-        int xNum = sheet.getColumns();// 列数
-        // 一个字段都没有
+        // column num
+        int xNum = sheet.getColumns();
+
+        // none column
         if (xNum <= 0) {
             return null;
         }
         List<Map<String, String>> values = new LinkedList<>();
 
         titleCache.clear();
-        // yNum-1是数据的大小，去掉第一行标题
+
+        // yNum-1 is the data size , but not title
+
         for (int y = 0; y < yNum - 1; y++) {
             Map<String, String> value = new LinkedHashMap<>();
             for (int x = 0; x < xNum; x++) {
-                // 读标题
+                //read title name
                 String title = getExcelTitle(sheet, x);
-                // 读数据,读数据从第2行开始读
+
+                //read data,from second row
                 String content = getContent(sheet, x, y + 1);
+
                 value.put(title, content);
             }
             values.add(value);

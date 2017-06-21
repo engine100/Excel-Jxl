@@ -2,14 +2,16 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.1"
+    buildToolsVersion "25.0.2"
+
     defaultConfig {
-        applicationId "com.engine100.excel.jxl"
-        minSdkVersion 9
-        targetSdkVersion 22
+        minSdkVersion 11
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
     }
     buildTypes {
         release {
@@ -27,7 +29,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.0.1'
     compile 'com.android.support:design:25.0.1'
     testCompile 'junit:junit:4.12'
-    // https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl
-    //compile 'net.sourceforge.jexcelapi:jxl:2.6.12'
     compile project(':jxlhelper-core')
 }
