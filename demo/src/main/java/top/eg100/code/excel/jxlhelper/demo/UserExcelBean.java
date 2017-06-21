@@ -17,11 +17,6 @@ import top.eg100.code.excel.jxlhelper.annotations.ExcelTitleCellFormat;
 
 /**
  * 用户表，作为用户的导出Excel的中间格式化实体，所有字段都为 String
- * @description</br>
- *
- * @author ZhuChengCheng
- * @github https://github.com/engine100
- * @time 2016年11月30日 - 上午11:33:44
  */
 @ExcelSheet(sheetName = "用户表")
 public class UserExcelBean {

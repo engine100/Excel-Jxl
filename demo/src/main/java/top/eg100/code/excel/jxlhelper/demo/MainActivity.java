@@ -76,6 +76,7 @@ public class MainActivity extends Activity {
 
     @SuppressWarnings("unused")
     private void onExport() {
+        //实际使用的时候，不要在主线程做操作，demo的数据比较少
         try {
             long t1 = System.currentTimeMillis();
             List<UserExcelBean> users = new ArrayList<>();
