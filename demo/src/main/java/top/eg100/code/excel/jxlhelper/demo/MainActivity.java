@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -62,6 +63,7 @@ public class MainActivity extends Activity {
             AssetManager asset = getAssets();
             long t1 = System.currentTimeMillis();
             InputStream excelStream = asset.open("users.xls");
+            excelStream = new FileInputStream("users.xls");
             ExcelManager excelManager = new ExcelManager();
             List<UserExcelBean> users = excelManager.fromExcel(excelStream, UserExcelBean.class);
             long t2 = System.currentTimeMillis();
@@ -103,18 +105,6 @@ public class MainActivity extends Activity {
             boolean success = excelManager.toExcel(excelStream, users);
             long t2 = System.currentTimeMillis();
 
-
-            //------------
-//            String cachePath = getCacheDir().toString() + "/export";
-//            File dir2 = new File(cachePath);
-//            if (!dir2.exists()) {
-//                dir2.mkdirs();
-//            }
-//            OutputStream cache = new FileOutputStream(cachePath + "/users.xls");
-//            boolean success2 = excelManager.toExcel(cache, users);
-            //------------
-
-
             double time = (t2 - t1) / 1000.0D;
             if (success) {
                 mExportResult.setText("导出成功：在存储卡根目录:\nexcel.demo/export/users.xls" + "\n用时:" + time + "秒");
@@ -124,6 +114,38 @@ public class MainActivity extends Activity {
 
         } catch (Exception e) {
             mExportResult.setText("导出异常");
+            e.printStackTrace();
+        }
+    }
+
+    void ads() {
+        try {
+            long t1 = System.currentTimeMillis();
+            List<UserExcelBean> users = new ArrayList<>();
+            for (int i = 1; i <= 150; i++) {
+                UserExcelBean u = new UserExcelBean();
+                u.setName("大到飞起来" + i);
+                u.setMobile("手机号" + i);
+                u.setSex("男");
+                u.setAddress("地点" + i);
+                u.setMemo("备注" + i);
+                u.setOther("其他信息" + i);
+                users.add(u);
+            }
+            ExcelManager excelManager = new ExcelManager();
+            OutputStream excelStream = new FileOutputStream("usersExport.xls");
+
+            boolean success = excelManager.toExcel(excelStream, users);
+            long t2 = System.currentTimeMillis();
+            double time = (t2 - t1) / 1000.0D;
+            if (success) {
+                System.out.println("导出成功\n用时:" + time + "秒");
+            } else {
+                System.out.println("导出失败");
+            }
+
+        } catch (Exception e) {
+            System.err.println("导出异常");
             e.printStackTrace();
         }
     }
