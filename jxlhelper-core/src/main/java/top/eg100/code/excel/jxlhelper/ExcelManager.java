@@ -125,6 +125,22 @@ public class ExcelManager {
         OutputStream stream = new FileOutputStream(file, false);
         return toExcel(stream, dataList);
     }
+    public boolean toExcel(File file, List<?> dataList) throws Exception {
+
+        if (file.exists()) {
+            if (file.isDirectory()) {
+//                throw new Exception("do you want to write content into a directory named "
+//                        + fileAbsoluteName + " ? , please check your filePath");
+            }
+        }
+        File folder = file.getParentFile();
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
+        OutputStream stream = new FileOutputStream(file, false);
+        return toExcel(stream, dataList);
+    }
 
     /**
      * write excel ,only one sheet ,with format
