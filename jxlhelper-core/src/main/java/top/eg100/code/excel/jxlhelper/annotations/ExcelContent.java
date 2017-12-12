@@ -21,4 +21,9 @@ public @interface ExcelContent {
      * The name link to title in excel
      */
     String titleName();
+
+    /**
+     * titleIndex in excel
+     */
+    int index() default 0;
 }

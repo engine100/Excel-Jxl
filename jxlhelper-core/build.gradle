@@ -4,7 +4,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
 android {
-    compileSdkVersion 18
+    compileSdkVersion 23
     buildToolsVersion "25.0.2"
 
     defaultConfig {

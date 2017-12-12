@@ -21,22 +21,22 @@ import top.eg100.code.excel.jxlhelper.annotations.ExcelTitleCellFormat;
 @ExcelSheet(sheetName = "用户表")
 public class UserExcelBean {
 
-	@ExcelContent(titleName = "姓名")
+	@ExcelContent(titleName = "姓名",index = 3)
 	private String Name;
 
-	@ExcelContent(titleName = "性别")
+	@ExcelContent(titleName = "性别",index = 2)
 	private String Sex;
 
-	@ExcelContent(titleName = "地址")
+	@ExcelContent(titleName = "地址",index = 4)
 	private String Address;
 
-	@ExcelContent(titleName = "电话")
+	@ExcelContent(titleName = "电话",index = 5)
 	private String Mobile;
 
-	@ExcelContent(titleName = "其他")
+	@ExcelContent(titleName = "其他",index = 1)
 	private String Other;
 
-	@ExcelContent(titleName = "备注")
+	@ExcelContent(titleName = "备注",index = 0)
 	private String Memo;
 
 	@ExcelTitleCellFormat(titleName = "姓名")
@@ -66,6 +66,7 @@ public class UserExcelBean {
 			// 字体大小
 			font.setPointSize(20);
 			format.setFont(font);
+
 		} catch (WriteException e) {
 			e.printStackTrace();
 		}

@@ -7,11 +7,16 @@
 package top.eg100.code.excel.jxlhelper;
 
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -25,6 +30,7 @@ import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
+import jxl.write.WriteException;
 import top.eg100.code.excel.jxlhelper.annotations.ExcelContent;
 import top.eg100.code.excel.jxlhelper.annotations.ExcelContentCellFormat;
 import top.eg100.code.excel.jxlhelper.annotations.ExcelSheet;
@@ -49,34 +55,75 @@ public class ExcelManager {
         Class<?> dataType = dataList.get(0).getClass();
         String sheetName = getSheetName(dataType);
         List<ExcelClassKey> keys = getKeys(dataType);
+        WritableWorkbook workbook = null;
+        try {
 
-        // create one book
-        WritableWorkbook workbook = Workbook.createWorkbook(excelStream);
-        // create sheet
-        WritableSheet sheet = workbook.createSheet(sheetName, 0);
+            // create one book
+            workbook = Workbook.createWorkbook(excelStream);
+            // create sheet
+            WritableSheet sheet = workbook.createSheet(sheetName, 0);
 
-        // add titles
-        for (int x = 0; x < keys.size(); x++) {
-            sheet.addCell(new Label(x, 0, keys.get(x).getTitle()));
-        }
-        fieldCache.clear();
-        // add data
-        for (int y = 0; y < dataList.size(); y++) {
+            // add titles
             for (int x = 0; x < keys.size(); x++) {
-                String fieldName = keys.get(x).getFieldName();
+                sheet.addCell(new Label(x, 0, keys.get(x).getTitle()));
+            }
+            fieldCache.clear();
+            // add data
+            for (int y = 0; y < dataList.size(); y++) {
+                for (int x = 0; x < keys.size(); x++) {
+                    String fieldName = keys.get(x).getFieldName();
 
-                Field field = getField(dataType, fieldName);
-                Object value = field.get(dataList.get(y));
-                String content = value != null ? value.toString() : "";
+                    Field field = getField(dataType, fieldName);
+                    Object value = field.get(dataList.get(y));
+                    String content = value != null ? value.toString() : "";
 
-                // below the title ,the data begin from y+1
-                sheet.addCell(new Label(x, y + 1, content));
+                    // below the title ,the data begin from y+1
+                    sheet.addCell(new Label(x, y + 1, content));
+                }
+            }
+//            workbook.write();
+//            workbook.close();
+//            excelStream.close();
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (workbook != null) {
+
+                try {
+                    workbook.write();
+                    workbook.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (WriteException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                excelStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
-        workbook.write();
-        workbook.close();
-        excelStream.close();
         return true;
+    }
+
+    public boolean toExcel(String fileAbsoluteName, List<?> dataList) throws Exception {
+
+        File file = new File(fileAbsoluteName);
+        if (file.exists()) {
+            if (file.isDirectory()) {
+//                throw new Exception("do you want to write content into a directory named "
+//                        + fileAbsoluteName + " ? , please check your filePath");
+            }
+        }
+        File folder = file.getParentFile();
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
+        OutputStream stream = new FileOutputStream(file, false);
+        return toExcel(stream, dataList);
     }
 
     /**
@@ -215,10 +262,18 @@ public class ExcelManager {
         List<ExcelClassKey> keys = new ArrayList<>();
         for (int i = 0; i < fields.length; i++) {
             ExcelContent content = fields[i].getAnnotation(ExcelContent.class);
-            if (content != null) {
-                keys.add(new ExcelClassKey(content.titleName(), fields[i].getName()));
+            if(content!=null){
+                keys.add(new ExcelClassKey(content.titleName(), fields[i].getName(), content.index()));
             }
         }
+        //sort to control the title index in excel
+        Collections.sort(keys, new Comparator<ExcelClassKey>() {
+            @Override
+            public int compare(ExcelClassKey t1, ExcelClassKey t2) {
+                return t1.getIndex() - t2.getIndex();
+            }
+        });
+
         return keys;
 
     }
